@@ -80,7 +80,7 @@ function mostrarLista() {
     resultadoListarProductos.innerHTML = "";
 
     resultadoListarProductos.innerHTML += modo === "eliminar"
-        ? `<h3 class="titulo-lista">Productos a Eliminar:</h3>`
+        ? `<h3 class="titulo-lista">Productos a Eliminar:<br></h3> <p>Seleccione el producto para eliminarlo de la lista</p>` 
         : `<h3>Lista de Productos:</h3>`;
 
     const ul = document.createElement("ul");
