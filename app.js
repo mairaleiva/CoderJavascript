@@ -1,73 +1,112 @@
-const productos = ["Harina", "Queso", "Papa", "Carne"];
+let productos = JSON.parse(localStorage.getItem("productos")) || ["Harina", "Queso", "Papa", "Carne"];
 let listaCompleta = "";
-
-console.log("Al iniciar el programa usted ya tiene cargados estos productos en su lista: " + productos);
+let modo = "listar";
+const resultadoListarProductos = document.getElementById('resultadoListarProductos');
+const botonListar = document.getElementById("listarProductos");
+const botonAgregar = document.getElementById("agregarProductos");
+const botonEliminar = document.getElementById("eliminarProductos");
 
 function IniciarApp(){
-    const opcion = prompt("Lista de Compras:\n 1. Listar Productos\n 2. Agregar Producto\n 3. Eliminar Producto\n4. Terminar\nElija una opción: ");
+    
+    //LISTA DE PRODUCTOS
 
-    MostrarOpciones(opcion);
+    botonListar.addEventListener("click",  () => {
+        modo = "listar";
+        mostrarLista();
+    })
+
+    //AGREGAR A PRODUCTOS
+
+    botonAgregar.addEventListener("click", ()=> {
+        const titulo = document.createElement("h3");
+        titulo.classList.add("titulo-prodNuevo");
+        titulo.textContent = "Producto a Agregar";
+
+        const inputProducto = document.createElement('INPUT');
+
+        resultadoListarProductos.textContent = ""; 
+        resultadoListarProductos.appendChild(titulo);
+        resultadoListarProductos.appendChild(inputProducto);
+
+        const btnAgregar = document.createElement('BUTTON');
+        btnAgregar.classList.add("btnAgregar");
+        btnAgregar.textContent = 'Agregar'
+
+        resultadoListarProductos.appendChild(btnAgregar);
+
+        btnAgregar.onclick = function () {
+        const valor = inputProducto.value.trim();
+        const productoMsg = document.createElement("p");
+
+        if (valor === "") {
+            productoMsg.classList.add("titulo-productoVacio");
+            productoMsg.textContent = "No se agregó producto a la lista.";
+        }
+        else if (productos.includes(valor)) {
+            productoMsg.classList.add("titulo-productoVacio");
+            productoMsg.textContent = "El producto que quiere agregar ya existe.";
+        }
+        else {
+            productos.push(valor);
+            guardarProductos();
+
+            productoMsg.classList.add("titulo-productoAgregado");
+            productoMsg.textContent = "Se agregó correctamente.";
+        }
+
+        resultadoListarProductos.appendChild(productoMsg);
+
+        setTimeout(() => {
+            productoMsg.remove();
+        }, 3000);
+    };
+    })
+
+    //ELIMINAR PRODUCTOS
+    
+    botonEliminar.addEventListener("click", ()=> {
+        const titulo = document.createElement("h3");
+        titulo.classList.add("titulo-prodEliminado");
+        titulo.textContent = "Producto a Eliminar:";
+        resultadoListarProductos.innerHTML = "";
+        resultadoListarProductos.appendChild(titulo);
+
+        modo = "eliminar"
+        mostrarLista();
+    })
 }
 
-function MostrarOpciones(opcion){
-    switch(opcion){
-        case "1": 
-            let lista = "Lista de Compras:\n";
-            for (let i = 0; i < productos.length; i++) {
-                lista += productos[i] + "\n";
-            }
-            alert(lista);
+function mostrarLista() {
+    resultadoListarProductos.innerHTML = "";
 
-            break;
-        case "2": 
-            let nombreProducto = prompt("Indique el nombre del producto a agregar: ");
-            
+    resultadoListarProductos.innerHTML += modo === "eliminar"
+        ? `<h3 class="titulo-lista">Productos a Eliminar:</h3>`
+        : `<h3>Lista de Productos:</h3>`;
 
-            while(nombreProducto){
+    const ul = document.createElement("ul");
 
-                productos.push(nombreProducto);
+    for (let i = 0; i < productos.length; i++) {
+        const li = document.createElement("li");
+        li.textContent = productos[i];
 
-                const continuar = confirm("Desea agregar otro producto? (Aceptar/Cancelar):  ");
-                if(!continuar){
-                    for(let i = 0; i < productos.length; i++){
-                        listaCompleta+= productos[i] + "\n";
-                    }
+        if (modo === "eliminar") {
+            li.style.cursor = "pointer";
 
-                    alert("Lista de productor Agregados:\n" + listaCompleta);
+            li.onclick = () => {
+                productos.splice(i, 1);
+                guardarProductos(); 
+                mostrarLista();
+            };
+        }
 
-                    break;
-                }
-
-                nombreProducto = prompt("Indique el nombre del producto a agregar: ");
-            }
-
-            IniciarApp();
-            break;
-        case "3":
-            let productoAEliminar = prompt("Indique el nombre del producto a eliminar: ");
-
-        while(productoAEliminar){
-                productos.pop(productoAEliminar);
-
-                const continuar = confirm("Desea Eliminar otro producto? (Aceptar/Cancelar):  ");
-                if(!continuar){
-                    for(let i = 0; i < productos.length; i++){
-                        listaCompleta+= productos[i] + "\n";
-                    }
-
-                    alert("Lista de productor Eliminados:\n" + listaCompleta);
-
-                    break;
-                }
-
-                nombreProducto = prompt("Indique el nombre del producto a Eliminar: ");
-            }
-
-            IniciarApp();
-            break;
-        default:
-            break;
+        ul.appendChild(li);
     }
+
+    resultadoListarProductos.appendChild(ul);
+}
+
+function guardarProductos() {
+    localStorage.setItem("productos", JSON.stringify(productos));
 }
 
 IniciarApp();
